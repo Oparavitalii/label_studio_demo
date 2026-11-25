@@ -1,0 +1,40 @@
+/* ===== CSS VARIABLES ===== */
+:root {
+  /* ===== Colors ===== */
+  --color-primary: #000000;
+  --color-secondary: #ffffff;
+
+  /* The focus ring, and the only colour this sheet still puts on screen.
+     It replaces --color-accent: #caff3a, the starter template's lime. That
+     token had exactly one consumer - the `*:focus-visible` rule in
+     _global.css - but that rule is a UNIVERSAL selector, so the lime drew
+     itself around every keyboard-focused control in the application: every
+     Creator field, every Production button, the nav links. Neither the
+     brand kit nor run 2's neutral chrome has a lime in it, and
+     scripts/verify-style.mjs could not see the offence because its scan
+     stops at src/labels. R-08 and N-02 both say the chrome is neutral, so
+     the ring is neutral: near-black, 16.1:1 on white, and visible against
+     every surface in tokens.css. */
+  --color-focus: #1a1a1a;
+
+  /* Text Colors */
+  --color-text-primary: #000000;
+  --color-text-secondary: #666666;
+  --color-background: #ffffff;
+
+  /* ===== Typography ===== */
+  --font-family-primary: 'Inter', sans-serif;
+  --font-family-secondary: 'Raleway', sans-serif;
+
+  /* ===== Spacing ===== */
+  --space-xs: 0.25rem;
+  --space-sm: 0.5rem;
+  --space-md: 1rem;
+  --space-lg: 2rem;
+  --space-xl: 4rem;
+
+  /* ===== Breakpoints ===== */
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+
+}

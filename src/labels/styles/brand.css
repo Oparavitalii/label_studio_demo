@@ -1,0 +1,18 @@
+/* Brand values of the demo brand "Demo Parts". Two, and nothing else coloured
+   lives in this file. (The production build carries the client's own brand
+   colour here; the public copy uses a neutral blue.)
+
+   The brandbook rule that governs them - a later card turns it into a
+   machine check: MAX 1 ACCENT ELEMENT PER SCREEN, and the accent is NEVER a
+   heading colour. Nothing in this card spends that budget; the wordmark
+   carries its own colour inside the SVG, so these two tokens are declared
+   here and left unapplied on purpose.
+
+   scripts/verify-style.mjs assertion 1 demands R=G=B from every colour in
+   this directory. These two are the declared exceptions, named in its
+   EXCEPT list so the check judges them rather than trips over them. */
+
+:root {
+  --brand-accent: #1d4ed8; /* accent. 6.70:1 on white = AA */
+  --brand-accent-hover: #1e3a8a; /* :hover. 10.4:1 on white = AAA */
+}

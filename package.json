@@ -1,0 +1,58 @@
+{
+  "name": "label_studio_demo",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "node scripts/dev.mjs",
+    "demo": "node scripts/dev.mjs",
+    "demo:reset": "node scripts/dev.mjs --reset",
+    "demo:seed": "node scripts/demo_seed.mjs",
+    "build": "vite build",
+    "preview": "vite preview",
+    "server": "node Server/index.js",
+    "start": "npm run build && node Server/index.js",
+    "lint": "eslint .",
+    "test": "vitest run",
+    "check:style": "node scripts/verify-style.mjs",
+    "verify:print": "node scripts/verify-print.mjs",
+    "verify:nok": "node scripts/verify-nok.mjs"
+  },
+  "dependencies": {
+    "bwip-js": "^4.11.4",
+    "exceljs": "^4.4.0",
+    "express": "^4.22.2",
+    "jsbarcode": "^3.12.3",
+    "lucide-react": "^0.544.0",
+    "nanoid": "^6.0.1",
+    "qrcode": "^1.5.4",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
+    "react-rnd": "^10.5.3",
+    "react-router-dom": "^7.8.2",
+    "zundo": "^2.3.0",
+    "zustand": "^5.0.15"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.33.0",
+    "@types/react": "^19.1.10",
+    "@types/react-dom": "^19.1.7",
+    "@vitejs/plugin-react": "^5.0.0",
+    "eslint": "^9.33.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-import": "^2.32.0",
+    "eslint-plugin-prettier": "^5.5.4",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "eslint-plugin-react-refresh": "^0.4.20",
+    "globals": "^16.3.0",
+    "prettier": "^3.6.2",
+    "vite": "^7.1.2",
+    "vitest": "^4.1.11"
+  },
+  "description": "Label design and batch printing with serial numbers and Data Matrix codes (public demo copy of a production app).",
+  "license": "UNLICENSED",
+  "engines": {
+    "node": ">=22.13"
+  }
+}

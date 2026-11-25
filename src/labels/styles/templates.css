@@ -1,0 +1,219 @@
+/* The Templates page (R-11): a grid of saved templates, each one drawn to
+   scale, each one openable back into the Creator.
+
+   Same two rules as the rest of the chrome, and both are machine-checked by
+   scripts/verify-style.mjs across every sheet in this folder:
+
+   1. NO colour literal appears here. Every value is a --lbl-* token from
+      tokens.css, so the page carries no hue of its own - a template that
+      contains a black fill is drawn in the neutral ramp, not in whatever
+      the element model happens to store.
+
+   2. NOTHING selects a bare element. print.css hides everything except
+      .print-root under @media print, so a bare h2/button/a selector here
+      would reach inside the printed label.
+
+   Namespace is lbl-tpl-* so nothing collides with editor.css or shell.css.
+   The buttons are deliberately NOT restyled: .lbl-btn and its modifiers
+   already exist in editor.css and a second button system is how a design
+   language starts drifting. */
+
+/* ------------------------------------------------------------------ page */
+
+.lbl-tpl {
+  box-sizing: border-box;
+  height: 100%;
+  overflow-y: auto;
+  padding: var(--lbl-space-5);
+  background: var(--lbl-bg);
+  color: var(--lbl-text);
+  font-family: var(--lbl-font);
+  font-size: var(--lbl-text-size);
+  font-weight: var(--lbl-weight);
+}
+
+.lbl-tpl__head {
+  display: flex;
+  align-items: baseline;
+  gap: var(--lbl-space-3);
+  margin-bottom: var(--lbl-space-5);
+  padding-bottom: var(--lbl-space-3);
+  border-bottom: var(--lbl-hairline);
+}
+
+.lbl-tpl__title {
+  margin: 0;
+  font-size: var(--lbl-text-size);
+  font-weight: var(--lbl-weight-strong);
+  letter-spacing: var(--lbl-tracking-label);
+  text-transform: uppercase;
+  color: var(--lbl-text);
+}
+
+.lbl-tpl__lead {
+  margin: 0;
+  font-size: var(--lbl-text-size-sm);
+  color: var(--lbl-text-faint);
+}
+
+/* auto-fill, not auto-fit: with one template saved, auto-fit would stretch
+   that single card across the whole viewport and its 70x20 preview with
+   it. auto-fill keeps the column width, so one card looks like one card. */
+/* Cards STRETCH rather than sit at their natural height: a 100x50 preview
+   is far taller than a 70x20 one, and with align-items:start the three
+   action rows in a row landed at three different heights. Stretching plus
+   the margin-top:auto below puts every Open/Duplicate/Delete on one line. */
+.lbl-tpl__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: var(--lbl-space-4);
+}
+
+/* ------------------------------------------------------------------ card */
+
+.lbl-tpl-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lbl-space-3);
+  padding: var(--lbl-space-3);
+  background: var(--lbl-surface);
+  border: var(--lbl-hairline);
+  border-radius: var(--lbl-radius);
+}
+
+.lbl-tpl-card:hover {
+  border-color: var(--lbl-line-strong);
+}
+
+/* The mat around the label, exactly as the canvas does it: the label is the
+   brightest thing in the card, the mat sits one step down. */
+.lbl-tpl-card__preview {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--lbl-space-3);
+  background: var(--lbl-bg);
+  border-radius: var(--lbl-radius);
+}
+
+/* container-type: size makes this the query container the text elements
+   size themselves against in cqh, so 10pt type on a 20mm label stays 17.6%
+   of the label's height however wide the grid column is. aspect-ratio is
+   set inline from the template's own w/h. */
+.lbl-tpl-stage {
+  container-type: size;
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  background: var(--lbl-grey-0);
+  border: 1px solid var(--lbl-line-strong);
+}
+
+.lbl-tpl-el {
+  position: absolute;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.lbl-tpl-el--text {
+  display: flex;
+  align-items: center;
+  line-height: 1.1;
+  white-space: nowrap;
+  color: var(--lbl-text);
+}
+
+/* Codes and images have nothing legible to draw at card scale, so they get
+   a neutral block that reports position and size honestly instead of a
+   fake barcode. */
+.lbl-tpl-el--block {
+  background: var(--lbl-grey-4);
+  border: 1px solid var(--lbl-grey-5);
+}
+
+.lbl-tpl-el--rect {
+  background: var(--lbl-grey-8);
+}
+
+/* A 0.5mm rule on a 20mm label is 2.5% of a ~48px preview - under a pixel.
+   Without the floor it disappears from the card while printing perfectly. */
+.lbl-tpl-el--line {
+  min-height: 1px;
+  background: var(--lbl-grey-9);
+}
+
+/* ------------------------------------------------------------------ meta */
+
+.lbl-tpl-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lbl-space-1);
+  min-width: 0;
+}
+
+.lbl-tpl-card__name {
+  margin: 0;
+  font-size: var(--lbl-text-size);
+  font-weight: var(--lbl-weight-strong);
+  color: var(--lbl-text);
+  overflow-wrap: anywhere;
+}
+
+.lbl-tpl-card__meta {
+  margin: 0;
+  font-size: var(--lbl-text-size-sm);
+  color: var(--lbl-text-dim);
+}
+
+.lbl-tpl-card__types {
+  margin: 0;
+  font-size: var(--lbl-text-size-sm);
+  color: var(--lbl-text-faint);
+  overflow-wrap: anywhere;
+}
+
+/* --------------------------------------------------------------- actions */
+
+.lbl-tpl-card__actions,
+.lbl-tpl-card__confirm {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--lbl-space-1);
+  margin-top: auto;
+  padding-top: var(--lbl-space-2);
+  border-top: var(--lbl-hairline);
+}
+
+.lbl-tpl-card__confirm-text {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: var(--lbl-text-size-sm);
+  font-weight: var(--lbl-weight-medium);
+  color: var(--lbl-text-dim);
+}
+
+/* ----------------------------------------------------------- empty state */
+
+.lbl-tpl-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--lbl-space-4);
+  max-width: 44ch;
+  padding: var(--lbl-space-5);
+  background: var(--lbl-surface);
+  border: var(--lbl-hairline);
+  border-radius: var(--lbl-radius);
+}
+
+.lbl-tpl-empty__text {
+  margin: 0;
+  line-height: 1.5;
+  color: var(--lbl-text-dim);
+}
+
+/* .lbl-btn on a router <Link> renders an <a>, which arrives underlined. */
+.lbl-tpl-link {
+  text-decoration: none;
+}

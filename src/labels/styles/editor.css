@@ -1,0 +1,429 @@
+/* Label editor styling, in two parts:
+
+   1. CANVAS — the scrollable mat, the label-sized stage, the drag/resize
+      box, its selection ring, alignment guides and handles.
+   2. CHROME — toolbar, panels, fields and buttons.
+
+   Everything reads from src/labels/styles/tokens.css. There is no hue
+   anywhere in this file: R-09 asked for neutral grayscale with selection
+   shown by weight rather than colour, and the only non-grey token in the
+   system (--lbl-danger) is used on exactly one control, Delete.
+
+   No rule here selects a bare element. print.css hides everything except
+   .print-root under @media print, so a bare button/input selector would
+   reach inside the printed label. Every selector is a class. */
+
+/* ---------------------------------------------------------------- canvas */
+
+.labels-canvas-scroll {
+  width: 100%;
+  height: 100%;
+  min-height: 320px;
+  overflow: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--lbl-space-5);
+  box-sizing: border-box;
+  background: var(--lbl-bg);
+}
+
+.labels-stage {
+  position: relative;
+  flex-shrink: 0;
+  background: var(--lbl-grey-0);
+  border: 1px solid var(--lbl-line-strong);
+  /* The one shadow in the whole editor. The stage is the artboard - it is
+     allowed to lift off the mat; nothing else is. */
+  box-shadow: 0 1px 3px rgb(0 0 0 / 8%);
+}
+
+.labels-element {
+  outline: 1px solid transparent;
+}
+
+.labels-element:hover {
+  outline: 1px dashed var(--lbl-grey-5);
+}
+
+/* Selection without colour. Two rings: a dark inner edge that reads on the
+   white label, and a white outer edge that separates it from the grey mat
+   when an element sits against the stage border. Weight, not hue. */
+.labels-element--selected,
+.labels-element--selected:hover {
+  outline: 1.5px solid var(--lbl-grey-9);
+  box-shadow:
+    0 0 0 1px var(--lbl-grey-0),
+    0 0 0 3px rgb(20 20 20 / 22%);
+}
+
+.labels-handle {
+  width: 8px !important;
+  height: 8px !important;
+  background: var(--lbl-grey-9);
+  border: 1px solid var(--lbl-grey-0);
+  border-radius: 2px;
+  box-sizing: border-box;
+}
+
+.labels-guide {
+  position: absolute;
+  background: var(--lbl-grey-9);
+  pointer-events: none;
+  z-index: 999;
+}
+
+.labels-guide--v {
+  top: 0;
+  bottom: 0;
+  width: 1px;
+}
+
+.labels-guide--h {
+  left: 0;
+  right: 0;
+  height: 1px;
+}
+
+/* ----------------------------------------------------------------- shell */
+
+.lbl-root {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background: var(--lbl-bg);
+  color: var(--lbl-text);
+  font-family: var(--lbl-font);
+  font-size: var(--lbl-text-size);
+  font-weight: var(--lbl-weight);
+  -webkit-font-smoothing: antialiased;
+}
+
+.lbl-body {
+  display: flex;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+/* The properties panel now sits to the RIGHT of the canvas, so its hairline
+   is the seam on its LEFT edge. border-right/border-left is a side-specific
+   property: leaving it as border-right would have drawn the divider on the
+   far side of the panel, against the viewport edge, with nothing to
+   separate. */
+.lbl-side {
+  display: flex;
+  flex-direction: column;
+  flex: 0 0 264px;
+  overflow-y: auto;
+  background: var(--lbl-surface);
+  border-left: var(--lbl-hairline);
+}
+
+.lbl-main {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+}
+
+/* ------------------------------------------------------------------ rail */
+
+/* R-05's left side: the element tiles, then the print panel. 180px is two
+   tiles wide at a comfortable touch size and no wider - the canvas is the
+   subject, the rail is a shelf. It scrolls on its own rather than pushing
+   the canvas out of the viewport when the window is short.
+
+   The wordmark used to head this rail (R-03-a, 25.08.2026): the owner saw
+   it beside the nav wordmark and cut it. One mark per screen is also what
+   the brandbook asks for. */
+.lbl-rail {
+  display: flex;
+  flex-direction: column;
+  flex: 0 0 180px;
+  gap: var(--lbl-space-4);
+  padding: var(--lbl-space-4);
+  overflow-y: auto;
+  background: var(--lbl-surface);
+  border-right: var(--lbl-hairline);
+  box-sizing: border-box;
+}
+
+.lbl-palette {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--lbl-space-2);
+}
+
+/* A tile is a button that reads as a target rather than as a control: icon
+   over label, square-ish, and never a colour - state reads by fill weight
+   exactly as .lbl-btn does. */
+.lbl-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--lbl-space-1);
+  padding: var(--lbl-space-2) var(--lbl-space-1);
+  font-family: inherit;
+  font-size: var(--lbl-text-size-sm);
+  font-weight: var(--lbl-weight-medium);
+  line-height: 1;
+  color: var(--lbl-text);
+  background: var(--lbl-surface);
+  border: 1px solid var(--lbl-line-strong);
+  border-radius: var(--lbl-radius);
+  cursor: pointer;
+  transition:
+    background-color 120ms ease,
+    border-color 120ms ease;
+}
+
+.lbl-tile:hover {
+  background: var(--lbl-fill-hover);
+  border-color: var(--lbl-grey-5);
+}
+
+.lbl-tile:active {
+  background: var(--lbl-fill-active);
+}
+
+.lbl-tile:focus-visible {
+  outline: var(--lbl-focus-w) solid var(--lbl-grey-9);
+  outline-offset: 1px;
+}
+
+/* The label stays under every icon. An icon-only rail is unreadable to a
+   screen reader and invisible to the print gate, which reads the palette
+   out of the DOM. */
+.lbl-tile__label {
+  font-size: var(--lbl-text-size-sm);
+  letter-spacing: var(--lbl-tracking-label);
+  text-transform: uppercase;
+  color: var(--lbl-text-dim);
+}
+
+/* --------------------------------------------------------------- toolbar */
+
+.lbl-toolbar {
+  display: flex;
+  /* The bar itself never wraps, so the Print group cannot be pushed onto a
+     second row where it sat under "+ Text" and read as another
+     add-element button. Only the left zone wraps, beneath itself. */
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: var(--lbl-space-2);
+  padding: var(--lbl-space-2) var(--lbl-space-3);
+  background: var(--lbl-surface);
+  border-bottom: var(--lbl-hairline);
+  box-sizing: border-box;
+}
+
+.lbl-group {
+  display: flex;
+  align-items: center;
+  gap: var(--lbl-space-1);
+  flex-wrap: wrap;
+}
+
+.lbl-divider {
+  width: 1px;
+  align-self: stretch;
+  margin: 0 var(--lbl-space-1);
+  background: var(--lbl-line);
+}
+
+/* Left zone: every add/undo/template control. Wraps internally on a
+   narrow viewport and takes all the space the right zone does not. */
+.lbl-toolbar__main {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--lbl-space-2);
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+/* --------------------------------------------------------------- buttons */
+
+.lbl-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--lbl-space-1);
+  height: var(--lbl-control-h);
+  padding: 0 var(--lbl-space-3);
+  font-family: inherit;
+  font-size: var(--lbl-text-size);
+  font-weight: var(--lbl-weight-medium);
+  line-height: 1;
+  white-space: nowrap;
+  color: var(--lbl-text);
+  background: var(--lbl-surface);
+  border: 1px solid var(--lbl-line-strong);
+  border-radius: var(--lbl-radius);
+  cursor: pointer;
+  transition:
+    background-color 120ms ease,
+    border-color 120ms ease;
+}
+
+.lbl-btn:hover:not(:disabled) {
+  background: var(--lbl-fill-hover);
+  border-color: var(--lbl-grey-5);
+}
+
+.lbl-btn:active:not(:disabled) {
+  background: var(--lbl-fill-active);
+}
+
+.lbl-btn:disabled {
+  color: var(--lbl-text-faint);
+  border-color: var(--lbl-line);
+  cursor: not-allowed;
+}
+
+/* The primary action is the darkest thing on screen. That is the whole
+   emphasis mechanism in a system with no accent colour. */
+.lbl-btn--primary {
+  color: var(--lbl-grey-0);
+  background: var(--lbl-grey-9);
+  border-color: var(--lbl-grey-9);
+  font-weight: var(--lbl-weight-strong);
+}
+
+.lbl-btn--primary:hover:not(:disabled) {
+  background: var(--lbl-grey-8);
+  border-color: var(--lbl-grey-8);
+}
+
+.lbl-btn--danger {
+  color: var(--lbl-danger);
+  border-color: var(--lbl-line-strong);
+}
+
+.lbl-btn--danger:hover:not(:disabled) {
+  background: var(--lbl-fill-hover);
+  border-color: var(--lbl-danger);
+}
+
+
+/* ---------------------------------------------------------------- fields */
+
+.lbl-input,
+.lbl-select {
+  height: var(--lbl-control-h);
+  min-width: 0;
+  padding: 0 var(--lbl-space-2);
+  font-family: inherit;
+  font-size: var(--lbl-text-size);
+  color: var(--lbl-text);
+  background: var(--lbl-surface);
+  border: 1px solid var(--lbl-line-strong);
+  border-radius: var(--lbl-radius);
+  box-sizing: border-box;
+}
+
+.lbl-select {
+  cursor: pointer;
+}
+
+.lbl-input:hover,
+.lbl-select:hover {
+  border-color: var(--lbl-grey-5);
+}
+
+.lbl-input::placeholder {
+  color: var(--lbl-text-faint);
+}
+
+.lbl-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lbl-space-1);
+  min-width: 0;
+}
+
+.lbl-field__label {
+  font-size: var(--lbl-text-size-sm);
+  font-weight: var(--lbl-weight-medium);
+  color: var(--lbl-text-dim);
+}
+
+.lbl-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--lbl-space-2);
+}
+
+/* ---------------------------------------------------------------- panels */
+
+.lbl-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lbl-space-3);
+  padding: var(--lbl-space-4);
+  border-bottom: var(--lbl-hairline);
+}
+
+/* The rail is shorter than the viewport when little is selected, so the
+   last panel's divider was left hanging in empty space with nothing
+   under it. A separator needs something to separate. */
+.lbl-panel:last-child {
+  border-bottom: 0;
+}
+
+.lbl-panel__title {
+  margin: 0;
+  font-size: var(--lbl-text-size-sm);
+  font-weight: var(--lbl-weight-strong);
+  letter-spacing: var(--lbl-tracking-label);
+  text-transform: uppercase;
+  color: var(--lbl-text-faint);
+}
+
+.lbl-btn-row {
+  display: flex;
+  gap: var(--lbl-space-2);
+}
+
+.lbl-btn-row .lbl-btn {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+/* The side rail is 264px, so a paired row gives each button ~112px, where
+   "Send backward" does not fit at body size and was wrapping out of the
+   fixed control height. A real modifier, not an ancestor override - the
+   BEM contract in Shape.md says a variant is a class, and a button should
+   not change size because of where it happens to sit. */
+.lbl-btn--sm {
+  padding: 0 var(--lbl-space-1);
+  font-size: var(--lbl-text-size-sm);
+}
+
+.lbl-stat {
+  font-size: var(--lbl-text-size);
+  font-weight: var(--lbl-weight-strong);
+  color: var(--lbl-text);
+}
+
+.lbl-preview {
+  font-size: var(--lbl-text-size-sm);
+  color: var(--lbl-text-dim);
+  word-break: break-all;
+}
+
+.lbl-hint {
+  font-size: var(--lbl-text-size-sm);
+  line-height: 1.5;
+  color: var(--lbl-text-faint);
+}
+
+
+/* Wrapper the Properties panel renders as <aside>. The side rail
+   (.lbl-side) owns the width and the divider now, so this is only a
+   column - the panel's old inline width/border would have doubled them. */
+.lbl-side-panel {
+  display: flex;
+  flex-direction: column;
+}
+

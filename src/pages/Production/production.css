@@ -1,0 +1,797 @@
+/* Production page chrome. The rewrite of
+   Label_Print/src/App.css — which is deliberately NOT
+   imported anywhere in this app, and must never be.
+
+   That sheet is a GLOBAL RESET wearing a component sheet's name. It styles
+   `*` (:2), `body` (:6), `h1` (:19), `h2` (:26), `input, select` (:144),
+   `button` (:164) plus `button:hover/:active/:disabled` (:177/:182/:186),
+   `button.ghost` (:191/:197) and `html, body` inside @media print (:573).
+   Importing it here would restyle every button and input in this
+   application, the label editor included — and because
+   src/labels/styles/print.css hides everything except `.print-root` under
+   @media print, a bare `button`/`input` rule would reach straight inside
+   the printed label and change what comes out of the printer.
+
+   So the rules this file holds itself to, all four machine-checkable by
+   scripts/verify-style.mjs once its scan widens past src/labels/styles:
+
+   1. Every class is namespaced `lbl-prod-*`. The source's `.card`,
+      `.field`, `.chip`, `.layout`, `.muted`, `.banner`, `.machine`,
+      `.batch`, `.copies`, `.boot` and `.topbar` were all generic names —
+      `.card` already collides with src/styles/_components.css:43.
+   2. NO rule starts with a bare element selector. Not at the top level,
+      not inside @media, not inside @supports. `.lbl-prod-field > span` is
+      fine because its head is a class; `span { … }` never is.
+   3. No id selector owns the viewport and there is no `min-height: 100vh`
+      boot screen. This page renders into `.lbl-outlet` under a 56px nav,
+      so it sizes to its OUTLET, not to the window.
+   4. Colour is neutral grayscale from src/labels/styles/tokens.css. The
+      source was navy/amber/red (#132c5a, #2d4373, #fbbf24, #b91c1c); none
+      of it survives. The single permitted exception is the brand
+      red, var(--brand-accent)/var(--brand-accent-hover) from brand.css, spent on
+      exactly ONE element — the Print-labels button, this screen's single
+      primary action. Never on a heading. Void/Delete carry the design
+      system's own destructive token, var(--lbl-danger).
+
+   And there is NO @page rule in this file. The source had one hardcoded at
+   App.css:567-570; a stylesheet @page is global and cannot vary, so
+   index.jsx emits `@page { size: 70mm 50mm; margin: 0 }` at runtime from
+   inside the portaled print sheet — the same technique PrintSheet.jsx uses
+   for the editor's own label size. */
+
+/* ----------------------------------------------------------------- page */
+
+.lbl-prod-root {
+  height: 100%;
+  overflow: auto;
+  padding: var(--lbl-space-4) var(--lbl-space-5) var(--lbl-space-5);
+  background: var(--lbl-bg);
+  color: var(--lbl-text);
+  font-family: var(--lbl-font);
+  font-size: var(--lbl-text-size);
+  font-weight: var(--lbl-weight);
+}
+
+/* The source relied on a global `* { box-sizing: border-box }`. This is that
+   rule, scoped: once to the page, once to the label itself — the label is
+   portaled onto document.body, OUTSIDE .lbl-prod-root, and its 2.5/3mm
+   padding must stay inside its 70x50mm box or the sheet overflows the page
+   and one label prints as two. */
+.lbl-prod-root *,
+.lbl-prod-label,
+.lbl-prod-label * {
+  box-sizing: border-box;
+}
+
+.lbl-prod-topbar {
+  max-width: 1180px;
+  margin: 0 auto var(--lbl-space-3);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--lbl-space-3);
+}
+
+.lbl-prod-title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: var(--lbl-weight-strong);
+  letter-spacing: var(--lbl-tracking-label);
+  color: var(--lbl-text);
+}
+
+.lbl-prod-supplier {
+  flex: 0 0 auto;
+}
+
+.lbl-prod-supplier-edit {
+  display: inline-flex;
+  gap: var(--lbl-space-1);
+  align-items: center;
+}
+
+/* ------------------------------------------------------------- controls */
+
+.lbl-prod-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--lbl-control-h);
+  padding: 0 var(--lbl-space-3);
+  border: 1px solid var(--lbl-line-strong);
+  border-radius: var(--lbl-radius);
+  background: var(--lbl-surface);
+  color: var(--lbl-text);
+  font-family: var(--lbl-font);
+  font-size: var(--lbl-text-size);
+  font-weight: var(--lbl-weight-medium);
+  line-height: 1.2;
+  cursor: pointer;
+}
+
+.lbl-prod-btn:hover:not(:disabled) {
+  background: var(--lbl-fill-hover);
+}
+
+.lbl-prod-btn:active:not(:disabled) {
+  background: var(--lbl-fill-active);
+}
+
+.lbl-prod-btn:focus-visible {
+  outline: var(--lbl-focus-w) solid var(--lbl-text);
+  outline-offset: 2px;
+}
+
+.lbl-prod-btn:disabled {
+  background: var(--lbl-grey-2);
+  border-color: var(--lbl-line);
+  color: var(--lbl-text-faint);
+  cursor: not-allowed;
+}
+
+.lbl-prod-btn--ghost {
+  background: transparent;
+  color: var(--lbl-text-dim);
+  border-color: var(--lbl-line);
+}
+
+.lbl-prod-btn--ghost:hover:not(:disabled) {
+  color: var(--lbl-text);
+  border-color: var(--lbl-line-strong);
+}
+
+/* Destructive only — the system's declared exception to grayscale, matching
+   .lbl-btn--danger in editor.css. Text and border, never a red fill: a red
+   FILL is the primary action's, and this screen has exactly one of those. */
+.lbl-prod-btn--danger {
+  color: var(--lbl-danger);
+  border-color: var(--lbl-line-strong);
+}
+
+.lbl-prod-btn--danger:hover:not(:disabled) {
+  background: var(--lbl-fill-hover);
+  border-color: var(--lbl-danger);
+}
+
+/* THE one red element on this screen. Brandbook: max one per screen, never
+   a heading. It is the single primary action — everything else here is
+   grey, and nothing else in this file references --brand-accent. */
+.lbl-prod-btn--print {
+  width: 100%;
+  min-height: 44px;
+  margin-top: var(--lbl-space-2);
+  background: var(--brand-accent);
+  border-color: var(--brand-accent);
+  color: #fff;
+  font-size: 0.875rem;
+  font-weight: var(--lbl-weight-strong);
+  letter-spacing: var(--lbl-tracking-label);
+}
+
+.lbl-prod-btn--print:hover:not(:disabled) {
+  background: var(--brand-accent-hover);
+  border-color: var(--brand-accent-hover);
+}
+
+.lbl-prod-input,
+.lbl-prod-select {
+  width: 100%;
+  min-height: var(--lbl-control-h);
+  padding: 0 var(--lbl-space-2);
+  border: 1px solid var(--lbl-line-strong);
+  border-radius: var(--lbl-radius);
+  background: var(--lbl-surface);
+  color: var(--lbl-text);
+  font-family: var(--lbl-font);
+  font-size: var(--lbl-text-size);
+}
+
+.lbl-prod-input:focus-visible,
+.lbl-prod-select:focus-visible {
+  outline: var(--lbl-focus-w) solid var(--lbl-text);
+  outline-offset: 1px;
+}
+
+.lbl-prod-input--supplier {
+  width: 110px;
+}
+
+.lbl-prod-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--lbl-space-1);
+  min-height: var(--lbl-control-h);
+  padding: 0 var(--lbl-space-3);
+  border: 1px solid var(--lbl-line);
+  border-radius: 999px;
+  background: var(--lbl-surface);
+  color: var(--lbl-text-dim);
+  font-family: var(--lbl-font);
+  font-size: var(--lbl-text-size-sm);
+  cursor: pointer;
+}
+
+.lbl-prod-chip:hover {
+  border-color: var(--lbl-line-strong);
+  color: var(--lbl-text);
+}
+
+.lbl-prod-button-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--lbl-control-h);
+  padding: 0 var(--lbl-space-3);
+  border: 1px solid var(--lbl-line);
+  border-radius: var(--lbl-radius);
+  color: var(--lbl-text-dim);
+  font-size: var(--lbl-text-size);
+  font-weight: var(--lbl-weight-medium);
+  text-decoration: none;
+}
+
+.lbl-prod-button-link:hover {
+  background: var(--lbl-fill-hover);
+  color: var(--lbl-text);
+}
+
+/* -------------------------------------------------------------- banners */
+
+/* The source coloured these amber / red / green. Here they read by WEIGHT
+   and by the thickness of one edge: an error is not a destructive control,
+   so it does not get to spend the screen's red budget. */
+.lbl-prod-banner {
+  max-width: 1180px;
+  margin: 0 auto var(--lbl-space-2);
+  padding: var(--lbl-space-2) var(--lbl-space-3);
+  border: var(--lbl-hairline);
+  border-radius: var(--lbl-radius);
+  background: var(--lbl-surface);
+  font-size: var(--lbl-text-size);
+  font-weight: var(--lbl-weight-medium);
+}
+
+.lbl-prod-banner--warn {
+  border-left: 3px solid var(--lbl-grey-6);
+}
+
+.lbl-prod-banner--error {
+  border-left: 3px solid var(--lbl-grey-9);
+  font-weight: var(--lbl-weight-strong);
+  cursor: pointer;
+}
+
+.lbl-prod-banner--ok {
+  border-left: 3px solid var(--lbl-grey-5);
+  cursor: pointer;
+}
+
+.lbl-prod-banner--ask {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--lbl-space-3);
+  flex-wrap: wrap;
+  border: 1px solid var(--lbl-grey-9);
+}
+
+.lbl-prod-banner-actions {
+  display: inline-flex;
+  gap: var(--lbl-space-2);
+}
+
+/* --------------------------------------------------------------- layout */
+
+.lbl-prod-layout {
+  max-width: 1180px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 400px 1fr;
+  gap: var(--lbl-space-4);
+  align-items: start;
+}
+
+.lbl-prod-card {
+  padding: var(--lbl-space-4);
+  border: var(--lbl-hairline);
+  border-radius: var(--lbl-radius);
+  background: var(--lbl-surface);
+}
+
+.lbl-prod-card-title {
+  margin: 0 0 var(--lbl-space-3);
+  color: var(--lbl-text);
+  font-size: var(--lbl-text-size-sm);
+  font-weight: var(--lbl-weight-strong);
+  letter-spacing: var(--lbl-tracking-label);
+  text-transform: uppercase;
+}
+
+.lbl-prod-right-col {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lbl-space-4);
+}
+
+/* ----------------------------------------------------------------- form */
+
+.lbl-prod-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lbl-space-1);
+  margin-bottom: var(--lbl-space-3);
+}
+
+.lbl-prod-field > span {
+  color: var(--lbl-text-dim);
+  font-size: var(--lbl-text-size-sm);
+  font-weight: var(--lbl-weight-medium);
+  letter-spacing: var(--lbl-tracking-label);
+}
+
+.lbl-prod-product-info {
+  margin: calc(-1 * var(--lbl-space-1)) 0 var(--lbl-space-3);
+  padding: var(--lbl-space-2);
+  border-radius: var(--lbl-radius);
+  background: var(--lbl-grey-2);
+  color: var(--lbl-text-dim);
+  font-size: var(--lbl-text-size-sm);
+}
+
+.lbl-prod-add-product {
+  width: 100%;
+  margin-bottom: var(--lbl-space-3);
+}
+
+.lbl-prod-new-product {
+  margin-bottom: var(--lbl-space-3);
+  padding: var(--lbl-space-3);
+  border: 1px dashed var(--lbl-line-strong);
+  border-radius: var(--lbl-radius);
+  background: var(--lbl-grey-1);
+}
+
+.lbl-prod-row-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--lbl-space-2);
+  align-items: center;
+}
+
+.lbl-prod-machine-row {
+  display: flex;
+  gap: var(--lbl-space-2);
+}
+
+.lbl-prod-machine {
+  flex: 1;
+}
+
+/* Selection without hue: the active machine reads by fill and weight, the
+   same way .lbl-nav__link[aria-current] does in the shell. */
+.lbl-prod-machine--active {
+  background: var(--lbl-grey-9);
+  border-color: var(--lbl-grey-9);
+  color: var(--lbl-grey-0);
+  font-weight: var(--lbl-weight-strong);
+}
+
+.lbl-prod-machine--active:hover:not(:disabled) {
+  background: var(--lbl-grey-8);
+}
+
+.lbl-prod-serial-info {
+  margin-top: var(--lbl-space-1);
+  color: var(--lbl-text-dim);
+  font-size: var(--lbl-text-size-sm);
+}
+
+.lbl-prod-range-warn {
+  color: var(--lbl-text);
+  font-weight: var(--lbl-weight-strong);
+}
+
+.lbl-prod-qty-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--lbl-space-2);
+}
+
+.lbl-prod-manual-btn {
+  width: 100%;
+  margin-top: var(--lbl-space-2);
+}
+
+.lbl-prod-manual-sn {
+  margin-top: var(--lbl-space-2);
+  padding: var(--lbl-space-2);
+  border: 1px solid var(--lbl-grey-6);
+  border-radius: var(--lbl-radius);
+  background: var(--lbl-grey-2);
+}
+
+.lbl-prod-manual-warn {
+  margin-bottom: var(--lbl-space-2);
+  color: var(--lbl-text);
+  font-size: var(--lbl-text-size-sm);
+  font-weight: var(--lbl-weight-medium);
+}
+
+.lbl-prod-manual-input {
+  width: 120px;
+  font-weight: var(--lbl-weight-strong);
+}
+
+/* --------------------------------------------- two-step confirmation box */
+
+/* The replacement for the five window.confirm() calls in the source. Native
+   modals block automation and can wedge a browser session, and this page has
+   to be drivable headlessly. The guard itself is unchanged: nothing
+   destructive happens on one click. */
+.lbl-prod-confirm {
+  margin-top: var(--lbl-space-2);
+  padding: var(--lbl-space-3);
+  border: 1px solid var(--lbl-grey-9);
+  border-radius: var(--lbl-radius);
+  background: var(--lbl-grey-1);
+}
+
+.lbl-prod-confirm-title {
+  margin-bottom: var(--lbl-space-2);
+  color: var(--lbl-text);
+  font-size: var(--lbl-text-size);
+  font-weight: var(--lbl-weight-strong);
+}
+
+.lbl-prod-confirm-text {
+  margin: 0 0 var(--lbl-space-2);
+  color: var(--lbl-text-dim);
+  font-size: var(--lbl-text-size-sm);
+  line-height: 1.45;
+}
+
+.lbl-prod-confirm-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--lbl-space-2);
+}
+
+/* -------------------------------------------------------------- preview */
+
+.lbl-prod-preview-frame {
+  display: flex;
+  justify-content: center;
+  padding: var(--lbl-space-3) 0;
+}
+
+/* The label is the artboard — it is allowed to lift off the panel, and
+   nothing else on this page is. Same single-shadow rule as .labels-stage. */
+.lbl-prod-preview-frame > .lbl-prod-label {
+  border: 1px solid var(--lbl-line-strong);
+  box-shadow: 0 1px 3px rgb(0 0 0 / 8%);
+  transform: scale(1.35);
+  transform-origin: top center;
+  margin-bottom: calc(50mm * 0.35);
+}
+
+.lbl-prod-matrix-check {
+  margin-top: var(--lbl-space-2);
+  padding: var(--lbl-space-2);
+  border-radius: var(--lbl-radius);
+  background: var(--lbl-grey-2);
+  color: var(--lbl-text-dim);
+  font-size: var(--lbl-text-size);
+  text-align: center;
+}
+
+.lbl-prod-matrix-check b {
+  color: var(--lbl-text);
+  font-family: Consolas, monospace;
+}
+
+/* -------------------------------------------------------------- history */
+
+.lbl-prod-history-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--lbl-space-3);
+  margin-bottom: var(--lbl-space-2);
+}
+
+.lbl-prod-history-head > .lbl-prod-card-title {
+  margin: 0;
+}
+
+.lbl-prod-history-actions {
+  display: inline-flex;
+  gap: var(--lbl-space-2);
+  align-items: center;
+}
+
+.lbl-prod-muted {
+  margin: 0;
+  color: var(--lbl-text-faint);
+  font-size: var(--lbl-text-size);
+}
+
+.lbl-prod-batch {
+  border-top: var(--lbl-hairline);
+}
+
+.lbl-prod-batch-row {
+  display: grid;
+  grid-template-columns: 130px 105px 1fr auto;
+  gap: var(--lbl-space-2);
+  width: 100%;
+  padding: var(--lbl-space-2) var(--lbl-space-1);
+  border: none;
+  border-radius: 0;
+  background: none;
+  color: var(--lbl-text);
+  font-family: var(--lbl-font);
+  font-size: var(--lbl-text-size-sm);
+  text-align: left;
+  align-items: baseline;
+  cursor: pointer;
+}
+
+.lbl-prod-batch-row:hover {
+  background: var(--lbl-fill-hover);
+}
+
+.lbl-prod-batch-row--voided {
+  opacity: 0.45;
+}
+
+.lbl-prod-b-date {
+  color: var(--lbl-text-faint);
+}
+
+.lbl-prod-b-order {
+  color: var(--lbl-text);
+  font-weight: var(--lbl-weight-strong);
+}
+
+.lbl-prod-b-name {
+  color: var(--lbl-text-dim);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lbl-prod-b-qty {
+  color: var(--lbl-text-dim);
+  white-space: nowrap;
+}
+
+.lbl-prod-void-tag {
+  margin-left: var(--lbl-space-1);
+  padding: 1px 5px;
+  border: 1px solid var(--lbl-danger);
+  border-radius: 3px;
+  color: var(--lbl-danger);
+  font-size: 10px;
+  font-style: normal;
+  font-weight: var(--lbl-weight-strong);
+  vertical-align: middle;
+}
+
+.lbl-prod-batch-detail {
+  padding: var(--lbl-space-1) var(--lbl-space-1) var(--lbl-space-3);
+}
+
+.lbl-prod-serial-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--lbl-space-1);
+  margin-bottom: var(--lbl-space-2);
+}
+
+.lbl-prod-serial-chip {
+  min-height: 22px;
+  padding: 0 var(--lbl-space-2);
+  font-size: var(--lbl-text-size-sm);
+}
+
+.lbl-prod-serial-chip--on {
+  background: var(--lbl-grey-9);
+  border-color: var(--lbl-grey-9);
+  color: var(--lbl-grey-0);
+  font-weight: var(--lbl-weight-strong);
+}
+
+.lbl-prod-copies {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--lbl-space-1);
+  color: var(--lbl-text-dim);
+  font-size: var(--lbl-text-size-sm);
+  font-weight: var(--lbl-weight-medium);
+}
+
+.lbl-prod-copies-input {
+  width: 64px;
+}
+
+/* ----------------------------------------------------------------- boot */
+
+/* No min-height: 100vh. The source owned the window; this page owns an
+   outlet that already sits below a 56px nav, and 100vh here would push a
+   second scrollbar exactly the way .lbl-root did before shell.css fixed it. */
+.lbl-prod-boot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  min-height: 240px;
+  padding: var(--lbl-space-5);
+  background: var(--lbl-bg);
+  font-family: var(--lbl-font);
+}
+
+.lbl-prod-boot-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--lbl-space-3);
+  padding: var(--lbl-space-5);
+  border: var(--lbl-hairline);
+  border-radius: var(--lbl-radius);
+  background: var(--lbl-surface);
+  text-align: center;
+}
+
+/* ------------------------------------------------- the 70x50 mm label --- */
+
+/* Geometry below this line is a customer contract, ported unchanged from
+   App.css:474-560. Pure #000 on pure #fff on purpose: this is the artwork
+   that reaches the printer, not chrome, and a thermal transfer head prints
+   ink or no ink. Both values are true neutrals, so the grayscale check
+   reads them as compliant rather than as an exception. */
+.lbl-prod-label {
+  width: 70mm;
+  height: 50mm;
+  padding: 2.5mm 3mm;
+  background: #fff;
+  color: #000;
+  font-family: Arial, Helvetica, sans-serif;
+  font-weight: normal;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Name block left, Data Matrix top-right. Capped so a long product name can
+   never push the SN / order / code rows off the 50mm label. */
+.lbl-prod-l-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 2mm;
+  max-height: 26mm;
+  overflow: hidden;
+}
+
+.lbl-prod-l-name {
+  font-size: 10pt;
+  line-height: 1.18;
+  word-break: break-word;
+}
+
+/* The name may wrap, but the producer number below it must never be pushed
+   out of view — cap the name area, not the number. */
+.lbl-prod-l-name-lines {
+  max-height: 13.5mm;
+  overflow: hidden;
+}
+
+.lbl-prod-l-producer {
+  margin-top: 0.6mm;
+}
+
+.lbl-prod-l-spacer {
+  flex: 1;
+}
+
+.lbl-prod-l-sn {
+  font-size: 9pt;
+}
+
+.lbl-prod-l-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: 9pt;
+  margin-top: 1.6mm;
+}
+
+.lbl-prod-dm-box {
+  flex: none;
+}
+
+/* A visible failure inside the label, in the label's own ink. It was red in
+   the source; red would be wrong here twice over — the screen's one red is
+   already spent, and a thermal printer has no second colour to give it. */
+.lbl-prod-dm-error {
+  width: 15mm;
+  height: 15mm;
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px dashed #000;
+  color: #000;
+  font-size: 8pt;
+  text-align: center;
+}
+
+/* --- Tabs: remanufactured (OK) vs not remanufactured (NOK) ---------------
+   No hue here either. R-09's brand-red budget is spent entirely on the single
+   PRINT button, so the selected tab reads by fill and weight, exactly like
+   .lbl-prod-machine--active and the shell's [aria-current] nav link. */
+.lbl-prod-tabs {
+  max-width: 1180px;
+  margin: 0 auto var(--lbl-space-3);
+  display: flex;
+  gap: var(--lbl-space-2);
+  border-bottom: 1px solid var(--lbl-line-strong);
+}
+
+.lbl-prod-tab {
+  appearance: none;
+  cursor: pointer;
+  border: 1px solid var(--lbl-line-strong);
+  border-bottom: none;
+  border-radius: var(--lbl-radius) var(--lbl-radius) 0 0;
+  background: var(--lbl-grey-1);
+  color: var(--lbl-text-dim);
+  font: inherit;
+  padding: var(--lbl-space-2) var(--lbl-space-3);
+  margin-bottom: -1px;
+}
+
+.lbl-prod-tab:hover {
+  background: var(--lbl-grey-2);
+  color: var(--lbl-text);
+}
+
+.lbl-prod-tab--active {
+  background: var(--lbl-grey-0);
+  color: var(--lbl-text);
+  font-weight: var(--lbl-weight-strong);
+  border-bottom: 1px solid var(--lbl-grey-0);
+}
+
+/* The consequence of the choice, not decoration: "with serial number" versus
+   "no serial number" is the whole difference between the two labels, and an
+   operator reaching for the wrong tab is a mislabelled pallet. */
+.lbl-prod-tab-note {
+  display: block;
+  font-size: var(--lbl-text-size-sm);
+  font-weight: 400;
+  color: var(--lbl-text-dim);
+}
+
+.lbl-prod-nok-intro {
+  margin: 0 0 var(--lbl-space-3);
+}
+
+/* --- NOK grade picker --------------------------------------------------- */
+.lbl-prod-grade-row {
+  display: flex;
+  gap: var(--lbl-space-2);
+}
+
+.lbl-prod-grade {
+  flex: 1;
+  font-weight: var(--lbl-weight-strong);
+}
+
+.lbl-prod-grade--active {
+  background: var(--lbl-grey-9);
+  border-color: var(--lbl-grey-9);
+  color: var(--lbl-grey-0);
+}
+
+.lbl-prod-grade--active:hover:not(:disabled) {
+  background: var(--lbl-grey-8);
+}

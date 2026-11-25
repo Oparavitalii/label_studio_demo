@@ -1,0 +1,130 @@
+/* App chrome that sits OUTSIDE the editor: the top nav and the routed
+   outlet under it. Imported LAST by AppShell.jsx - see the .lbl-root note
+   at the bottom, which depends on that.
+
+   Every colour here is a --lbl-* token from tokens.css. No literal value
+   appears in this file, brand red included: the wordmark carries its own
+   red inside the SVG and the brandbook allows only one red element per
+   screen, so the nav spends nothing. */
+
+.lbl-shell {
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+}
+
+.lbl-nav {
+  flex: 0 0 56px;
+  display: flex;
+  align-items: center;
+  gap: var(--lbl-space-5);
+  padding: 0 var(--lbl-space-4);
+  background: var(--lbl-surface);
+  border-bottom: var(--lbl-hairline);
+  font-family: var(--lbl-font);
+}
+
+/* The lockup: mark over its line. Brandbook proportions - the line sits
+   tight under the wordmark, never beside it. */
+.lbl-nav__lockup {
+  display: flex;
+  flex: 0 0 auto;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.lbl-nav__brand {
+  flex: 0 0 auto;
+}
+
+/* The eyebrow treatment from the brand kit: uppercase, weighted, widely
+   tracked. 0.14em is the brand's own eyebrow tracking and is wider than
+   --lbl-tracking-label, which is sized for form labels rather than for a
+   lockup. Grey, not red - the wordmark already spends the one red this
+   screen is allowed. */
+.lbl-nav__tagline {
+  margin: 0;
+  color: var(--lbl-text-faint);
+  font-size: var(--lbl-text-size-sm);
+  font-weight: var(--lbl-weight-strong);
+  letter-spacing: 0.14em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.lbl-nav__list {
+  display: flex;
+  align-items: center;
+  gap: var(--lbl-space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.lbl-nav__link {
+  display: inline-flex;
+  align-items: center;
+  height: var(--lbl-control-h);
+  padding: 0 var(--lbl-space-3);
+  border-radius: var(--lbl-radius);
+  color: var(--lbl-text-dim);
+  font-size: var(--lbl-text-size-sm);
+  font-weight: var(--lbl-weight-medium);
+  letter-spacing: var(--lbl-tracking-label);
+  text-transform: uppercase;
+  text-decoration: none;
+}
+
+.lbl-nav__link:hover {
+  background: var(--lbl-fill-hover);
+  color: var(--lbl-text);
+}
+
+.lbl-nav__link:focus-visible {
+  outline: var(--lbl-focus-w) solid var(--lbl-text);
+  outline-offset: 2px;
+}
+
+/* NavLink writes aria-current="page" itself, so the active state is read
+   off the accessibility tree instead of a second, style-only class. The
+   difference reads by WEIGHT and CONTRAST - never by hue. */
+.lbl-nav__link[aria-current='page'] {
+  background: var(--lbl-fill-active);
+  color: var(--lbl-text);
+  font-weight: var(--lbl-weight-strong);
+}
+
+.lbl-outlet {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+/* editor.css sets .lbl-root{height:100vh}. With a 56px nav above it that
+   overflows the viewport and produces a second scrollbar. shell.css is
+   imported AFTER editor.css, so equal specificity resolves in source
+   order and this wins. Do not edit editor.css - another card owns it
+   this wave. */
+.lbl-root {
+  height: 100%;
+}
+
+/* Demo_Parts_Logo.svg declares width="100%" height="100%" and so has no
+   intrinsic size of its own. Without this it fills whatever box it is in. */
+.lbl-brand {
+  display: block;
+  width: auto;
+  height: 21px;
+  max-width: 100%;
+}
+
+.lbl-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: var(--lbl-text-dim);
+  font-family: var(--lbl-font);
+  font-size: var(--lbl-text-size);
+  letter-spacing: var(--lbl-tracking-label);
+  text-transform: uppercase;
+}

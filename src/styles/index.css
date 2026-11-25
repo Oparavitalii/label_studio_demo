@@ -1,0 +1,12 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Raleway:wght@300;400;500;600;700;800;900&display=swap');
+@import './_normalize.css';
+@import './_variables.css';
+@import './_global.css';
+
+/* _components.css is deliberately NOT imported. It defines .btn,
+   .btn__secondary, .card and .input - the starter template's component set,
+   from a different design system - and an audit of every className in the
+   38 live source files found ZERO uses of any of them. It was 86 lines of
+   dead CSS shipped in every bundle, carrying #e5e7eb, a blue-tinted grey
+   that is not in this app's neutral scale. The file is kept on disk as the
+   template's own record; nothing here loads it. */

@@ -1,0 +1,51 @@
+/* Print-only rendering of the label document (PrintSheet.jsx).
+   `.print-root` stays `display: none` on screen no matter where it is
+   mounted in the tree, so it is invisible in the editor by default - this
+   base rule (outside any @media block) is what keeps it that way.
+
+   PrintSheet.jsx portals `.print-root` straight onto `document.body`, so
+   under @media print it is a DIRECT CHILD OF BODY - never nested inside
+   whatever toolbar/canvas/panel markup the editor happens to mount. That
+   is what lets `body > * { display: none }` below take every other piece
+   of chrome fully OUT OF FLOW: an element with `display: none` generates
+   no box at all, so nothing inside it - however tall - can push paper.
+   (The old `visibility: hidden` trick could not do that: visibility still
+   reserves layout space, which is exactly why one label used to print as
+   a ten-page document.) The next rule, `.print-root { display: block }`,
+   wins back only `.print-root` itself - a class selector always outranks
+   a `body > *` type+universal selector, regardless of source order - so
+   this file still never needs to know the surrounding markup's structure.
+
+   The physical `@page` size is no longer a literal here: PrintSheet.jsx
+   renders its own <style> tag with `@page { size: <label.w>mm <label.h>mm;
+   margin: 0 }` computed from the live store, so whatever label size the
+   user actually picked is what reaches the printed media. 70x20 remains
+   only the store's default label size, never a hardcoded floor in this
+   file. */
+
+.print-root {
+  display: none;
+}
+
+@media print {
+  body > * {
+    display: none;
+  }
+
+  .print-root {
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+  }
+
+  .label-page {
+    position: relative;
+    overflow: hidden;
+    break-after: page;
+  }
+
+  .label-page:last-child {
+    break-after: auto;
+  }
+}

@@ -1,0 +1,73 @@
+/* The print panel (PrintPanel.jsx).
+
+   Six classes, all of them layout or type. Every control inside the panel is
+   an existing .lbl-* control from editor.css - a print panel that invented
+   its own button would be a second design system living inside the first.
+
+   The three rules this file is held to are the same three editor.css is held
+   to, and scripts/verify-style.mjs enforces them across every sheet in this
+   directory:
+
+   1. No colour LITERAL. Every colour here is a token reference, so the
+      neutral ramp stays the single source of truth.
+   2. No bare element selector. print.css hides everything except
+      `.print-root` under @media print, so a rule starting with a bare
+      element would reach inside the printed label and change what comes out
+      of the Zebra.
+   3. Namespaced lbl-*.
+
+   No red. The brandbook allows at most ONE red element per screen and the
+   Creator already spends that budget on the wordmark - twice over, since the
+   mark appears in the nav and again at the head of the rail. The print
+   button is the primary action, so it wears .lbl-btn--primary: the darkest
+   thing on screen, which is this system's whole emphasis mechanism in the
+   absence of an accent colour. */
+
+.lbl-print-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lbl-space-3);
+}
+
+/* Two fields side by side would be 80px each in a 180px rail, where
+   "ZDesigner ZD421-300dpi ZPL" is unreadable. The panel stacks. */
+.lbl-print-panel__field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lbl-space-1);
+  min-width: 0;
+}
+
+/* What will ACTUALLY come out of the printer, in labels. The operator is
+   committing physical stock, so the number is stated before the button, not
+   discovered afterwards. */
+.lbl-print-panel__total {
+  font-size: var(--lbl-text-size);
+  font-weight: var(--lbl-weight-strong);
+  color: var(--lbl-text);
+}
+
+.lbl-print-panel__note {
+  font-size: var(--lbl-text-size-sm);
+  line-height: 1.5;
+  color: var(--lbl-text-faint);
+  overflow-wrap: anywhere;
+}
+
+/* A failed print is not a hint. It reads in the one non-grey token the
+   system declares, the same one Delete uses, because an error rendered in
+   the same faint grey as help text is an error nobody reads. */
+.lbl-print-panel__note--alert {
+  color: var(--lbl-danger);
+  font-weight: var(--lbl-weight-medium);
+}
+
+.lbl-print-panel__note--ok {
+  color: var(--lbl-text-dim);
+}
+
+.lbl-print-panel__actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lbl-space-2);
+}

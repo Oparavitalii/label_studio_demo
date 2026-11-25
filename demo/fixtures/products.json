@@ -1,0 +1,22 @@
+[
+  {
+    "producerNumber": "DP1000101",
+    "customerCode": "001-002-000101R",
+    "name": "REMAN INJ CR DELPHI"
+  },
+  {
+    "producerNumber": "DP1000102",
+    "customerCode": "001-002-000102R",
+    "name": "REMAN INJ CR DELPHI"
+  },
+  {
+    "producerNumber": "DP2000210",
+    "customerCode": "002-004-000210R",
+    "name": "REMAN INJ CR BOSCH"
+  },
+  {
+    "producerNumber": "DP3000315",
+    "customerCode": "003-001-000315R",
+    "name": "REMAN INJ CR DENSO"
+  }
+]

@@ -1,0 +1,71 @@
+/* Design system for the label editor chrome — light, neutral, minimal.
+   Additive on purpose: src/styles/_variables.css is shared with Home and
+   Admin, which N-01 puts out of bounds, so nothing there is redefined.
+
+   Two rules hold this together and both are machine-checked:
+
+   1. EVERY colour here is a true neutral — R = G = B in every single value.
+      "minimalizm" was answered as visual restraint and the accent question
+      as "neutral grayscale, no accent", so the chrome carries no hue at
+      all. Selection and state read by WEIGHT, never by colour.
+
+   2. NOTHING here selects a bare element. Every rule is a `.lbl-` class.
+      print.css hides everything except `.print-root` under @media print;
+      a stylesheet that styled bare <button>/<input> would reach inside the
+      printed label and change what comes out of the Zebra. */
+
+:root {
+  /* Neutral ramp — white to near-black, every step R=G=B. */
+  --lbl-grey-0: #ffffff;
+  --lbl-grey-1: #fafafa;
+  --lbl-grey-2: #f5f5f5;
+  --lbl-grey-3: #ebebeb;
+  --lbl-grey-4: #dedede;
+  --lbl-grey-5: #c4c4c4;
+  --lbl-grey-6: #949494;
+  --lbl-grey-7: #6b6b6b;
+  --lbl-grey-8: #3d3d3d;
+  --lbl-grey-9: #141414;
+
+  /* Roles. Chrome sits one step off white so the label stage reads as the
+     brightest thing on screen — the artboard, not the panels, is the
+     subject. */
+  --lbl-bg: var(--lbl-grey-1);
+  --lbl-surface: var(--lbl-grey-0);
+  --lbl-line: var(--lbl-grey-3);
+  --lbl-line-strong: var(--lbl-grey-4);
+  --lbl-text: var(--lbl-grey-9);
+  --lbl-text-dim: var(--lbl-grey-7);
+  --lbl-text-faint: var(--lbl-grey-6);
+  --lbl-fill-hover: var(--lbl-grey-2);
+  --lbl-fill-active: var(--lbl-grey-3);
+
+  /* The ONE deliberate non-grey token in the system. A destructive action
+     rendered in grey is a usability regression dressed as minimalism, so
+     Delete keeps a red — and only Delete. Named here so Phase 8 can judge
+     the exception rather than discover it. */
+  --lbl-danger: #b42318;
+
+  /* Type: one family, one size, difference carried by weight and colour.
+     A tool UI that varies font size per panel reads as a website. */
+  --lbl-font: var(--font-family-primary, 'Inter', sans-serif);
+  --lbl-text-size: 0.8125rem;
+  --lbl-text-size-sm: 0.6875rem;
+  --lbl-weight: 400;
+  --lbl-weight-medium: 500;
+  --lbl-weight-strong: 600;
+  --lbl-tracking-label: 0.06em;
+
+  /* Space: a 4px rhythm. Nothing in the chrome uses a value off this scale. */
+  --lbl-space-1: 4px;
+  --lbl-space-2: 8px;
+  --lbl-space-3: 12px;
+  --lbl-space-4: 16px;
+  --lbl-space-5: 24px;
+
+  /* One radius, one hairline, one focus ring, no shadows. */
+  --lbl-radius: 4px;
+  --lbl-hairline: 1px solid var(--lbl-line);
+  --lbl-control-h: 28px;
+  --lbl-focus-w: 2px;
+}

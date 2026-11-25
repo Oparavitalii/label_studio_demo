@@ -1,0 +1,73 @@
+/* The data panel (DataPanel.jsx).
+
+   Held to the same three rules as print-panel.css and enforced by
+   scripts/verify-style.mjs:
+
+   1. No colour LITERAL - every colour is a token reference.
+   2. No bare element selector - print.css hides everything but `.print-root`
+      under @media print, and a rule starting with an element name would reach
+      inside the printed label.
+   3. Namespaced lbl-*.
+
+   Every control in here is an existing .lbl-* control. The one thing this
+   file styles that nothing else does is the file input, because a browser's
+   default "Choose File" button is the only widget on this screen that does
+   not belong to the system. */
+
+.lbl-data-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lbl-space-2);
+}
+
+.lbl-data-panel__file {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lbl-space-1);
+  min-width: 0;
+}
+
+/* The native file input at body size, hairlined like every other control, so
+   it reads as part of the panel rather than as the browser's own furniture.
+   `width: 100%` with `min-width: 0` is what stops the filename pushing the
+   180px rail wider than the rail. */
+.lbl-data-panel__input {
+  width: 100%;
+  min-width: 0;
+  padding: var(--lbl-space-1);
+  font-family: var(--lbl-font);
+  font-size: var(--lbl-text-size-sm);
+  color: var(--lbl-text-dim);
+  background: var(--lbl-surface);
+  border: var(--lbl-hairline);
+  border-radius: var(--lbl-radius);
+  box-sizing: border-box;
+}
+
+.lbl-data-panel__input:hover {
+  border-color: var(--lbl-line-strong);
+}
+
+/* The columns wrap: a spreadsheet with nine columns is normal and a row of
+   nine buttons in a 180px rail is not. */
+.lbl-data-panel__columns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--lbl-space-1);
+}
+
+.lbl-data-panel__note {
+  font-size: var(--lbl-text-size-sm);
+  line-height: 1.5;
+  color: var(--lbl-text-dim);
+  overflow-wrap: anywhere;
+}
+
+/* A file that failed to import is not a hint. It reads in the one non-grey
+   token the system declares - the same one Delete and a failed print use -
+   because an error in the same faint grey as help text is an error nobody
+   reads. */
+.lbl-data-panel__note--alert {
+  color: var(--lbl-danger);
+  font-weight: var(--lbl-weight-medium);
+}
